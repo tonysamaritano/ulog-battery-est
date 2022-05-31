@@ -15,12 +15,13 @@ class BatteryModel:
         self.__wh_log = []
         self.__timestamp = []
         self.__final_capacity_log = []
+        self.__samplerate = []
         
         # Givens
         self.__nominal_voltage = nominal_voltage
         self.__cells = cells                      
         self.__nominal_Ah = nominal_mAh/1000.0
-        self.__nominal_watt_hours = nominal_voltage * self.__nominal_Ah
+        # self.__nominal_watt_hours = nominal_voltage * self.__nominal_Ah
 
         # Attributes
         self.__final_voltage = 0
@@ -40,10 +41,10 @@ class BatteryModel:
         # Calculations and Function Calls
         self.__retrieve_logs(file)
         self.__calculate_power()
-        self.__calculate_frequency()
+        self.__calculate_samplerate()
         self.__calculate_wh()
         self.__calculate_mAh()
-        self.__calculate_final_capacity()
+        self.__calculate_final_capacity(nominal_mAh)
         self.__calculate_final_stats()
 
     # Retrieve U-Log data from file
@@ -68,29 +69,28 @@ class BatteryModel:
         self.__power_log = self.__voltage_log * self.__current_log  # Calculate power consumption
 
     # Calculate timestamp frequency
-    def __calculate_frequency(self):
+    def __calculate_samplerate(self):
         tmp = np.roll(self.__timestamp, 1)
         tmp[0] = 0
-        self.__frequency = 1/(self.__timestamp-tmp)
-        print("freq: " + str(self.__frequency))
+        self.__samplerate  = self.__timestamp-tmp
 
     # Calculates watt hours
     def __calculate_wh(self):
-        self.__nominal_watt_hours = self.__nominal_Ah*self.__nominal_voltage
-        self.__wh_log = self.__power_log / self.__frequency / 3600.0
+        # self.__nominal_watt_hours = self.__nominal_Ah*self.__nominal_voltage
+        self.__wh_log = self.__power_log * self.__samplerate / 3600.0
 
     # Calculate mAh consumption from current data
     def __calculate_mAh(self):
-      self.__mAh_log = (self.__current_log / 3600) * 1000  # Calculate mAh for each
+      self.__mAh_log = ((self.__current_log*1000) * (0.25/3600))  # Calculate mAh for each
        
     # Calculate final capacity by decrementing Wh from nominal Wh
-    def __calculate_final_capacity(self):
-        self.__final_capacity = self.__nominal_watt_hours
+    def __calculate_final_capacity(self, nominal_mAh):
+        self.__final_capacity = nominal_mAh
 
         # finalCapacityLog = []
         self.__final_capacity_log = np.zeros_like(self.__timestamp)
-        for x in range(0, len(self.__wh_log)): 
-            self.__final_capacity = self.__final_capacity - self.__wh_log[x]
+        for x in range(0, len(self.__mAh_log)): 
+            self.__final_capacity = self.__final_capacity - self.__mAh_log[x]
             self.__final_capacity_log[x] = self.__final_capacity
 
     # Calculate averages, minimums, and final values of logs
@@ -99,7 +99,7 @@ class BatteryModel:
         self.__minimum_voltage = np.amin(np.array(self.__voltage_log))
         self.__average_current = np.average(np.array(self.__current_log))
         self.__average_Wh = sum(self.__wh_log)/len(self.__wh_log)
-        self.__final_percent = int(self.__final_capacity/self.__nominal_watt_hours * 100)
+        self.__final_percent = int(self.__final_capacity/self.__nominal_Ah/1000 * 100)
         self.__average_mAh = sum(self.__mAh_log)/len(self.__mAh_log)
 
     # Scale capacity estimation based on external temperature
@@ -131,7 +131,12 @@ class BatteryModel:
         axs[0, 1].set_title('Current')
         axs[1, 0].set_ylim([0, max(self.__power_log)])
         axs[1, 0].set_title('Power Consumption')
-        axs[1, 1].set_ylim([0, max(self.__wh_log)])
+        print(max(self.__mAh_log))
+        print(max(self.__wh_log))
+        # NOTE max(mAh_log) was wh_log before change. 
+        # mAh log's max: 0.13333334
+        # wh log's max: 0.0016849361571670688
+        axs[1, 1].set_ylim([0, max(self.__mAh_log)]) 
         axs[1, 1].set_title('Wh Consumption')
 
         axs[0, 0].set(xlabel='Time (s)', ylabel='Voltage')

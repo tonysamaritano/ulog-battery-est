@@ -7,7 +7,6 @@ import numpy as np
 
 from BatteryModel import BatteryModel
 
-
 assert len(sys.argv) > 1, f"No input file specified"  # Verify file provided
 
 print(f"input: {sys.argv[1]}")  # Print file name

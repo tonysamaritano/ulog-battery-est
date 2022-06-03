@@ -36,18 +36,18 @@ def pull_logs(file):
         if log_message.name == "Vehicle":
             return np.array(log_message.data["batteryVoltage"]), (np.array(log_message.data["batteryCurrent"])/1000), (np.array(log_message.data["timestamp"]) / 1e6)
 
-    """
-    Print stats for analysis
-    """
-    print("Final Voltage: %sV " % (voltageLog[voltageLog.size-1]))
-    print("Maximum Voltage: %sV" % (voltageLog[0]))
-    print("Minimum Voltage: %sV" % (minVoltage))
-    print("Average Current: %sA" % meanCurrent)
-    print("Average mAh: ", sum(mAhLog)/len(mAhLog))
-    print("Final Capacity (mAh) %s" % (nominal_mAh-capacityAddedmAh))
-    print("Average Wh: %sWh" % meanWh)
-    print("Final Capacity: %sWh" % finalCapacity)
-    print("Final Percentage: %d%%" % mAh_percent_log[len(mAh_percent_log)-1])
+    # """
+    # Print stats for analysis
+    # """
+    # print("Final Voltage: %sV " % (voltageLog[voltageLog.size-1]))
+    # print("Maximum Voltage: %sV" % (voltageLog[0]))
+    # print("Minimum Voltage: %sV" % (minVoltage))
+    # print("Average Current: %sA" % meanCurrent)
+    # print("Average mAh: ", sum(mAhLog)/len(mAhLog))
+    # print("Final Capacity (mAh) %s" % (nominal_mAh-capacityAddedmAh))
+    # print("Average Wh: %sWh" % meanWh)
+    # print("Final Capacity: %sWh" % finalCapacity)
+    # print("Final Percentage: %d%%" % mAh_percent_log[len(mAh_percent_log)-1])
 
 
 def find_motor_start(v_log):
@@ -57,12 +57,11 @@ def find_motor_start(v_log):
     :param v_log: log of voltage data
     :return i: index of motor start
     """
-    for i in range(0, len(v_log)):
-        if(i == len(v_log)-1):
-            return 0
-        else:
-            if(v_log[i+1]-v_log[i] > 0.05):
-                return i+5  # Offset to account for sharp rise
+    for i in range(0, len(v_log)-1):
+        if((v_log[i] - v_log[i+1]) > 0.05):
+            return i + 5
+    return 0
+    
 
 
 def find_full_drain(cap_log):
@@ -73,11 +72,10 @@ def find_full_drain(cap_log):
     :return i: index of full mAh drain
     """
     for i in range(0, len(cap_log)-1):
-        if(i == len(cap_log)):
-            break
-        else:
-            if(cap_log[i] <= 0):
-                return i
+        if(cap_log[i] <= 0):
+            return i
+    return len(cap_log)-1
+
 
 
 def mAh_data(mAh_log, timestamp, nominal_mAh):

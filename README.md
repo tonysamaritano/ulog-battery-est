@@ -23,4 +23,6 @@ python3 tools/pyulog-test.py data/21_27_56.ulog
 ## To use batt-testing.py
 Provide 2 ULog files, one representing a 1C drain test, another representing a 30A hover test
 
-```batt-testing.py <1C ULog> <30A ULog>```
+Returns 2 sets of 4 coefficients representing the fit curves for battery estimation
+
+```py batt-testing.py <1C ULog> <30A ULog>```

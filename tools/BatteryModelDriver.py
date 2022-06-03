@@ -15,8 +15,4 @@ print(f"input: {sys.argv[1]}")  # Print file name
 print("Making battery model object")
 battery_model_1 = BatteryModel(sys.argv[1])
 
-print("Printing data")
-battery_model_1.print_data()
-print("\nGraphing voltage vs battery percentage")
-battery_model_1.graph_voltage_vs_percentage()
-print(sys.getsizeof(battery_model_1))
+print(battery_model_1.simulate(12.3)/60)

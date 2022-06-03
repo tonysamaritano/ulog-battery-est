@@ -9,42 +9,6 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 
-def plotPowerData():
-    """
-    Plot relevant power data for battery tests
-    """
-    fig, axs = plt.subplots(2, 2)
-    # Set voltage limits, batteries should never drop below 9V, never higher than 13V
-    axs[0, 0].set_ylim([9, 13])
-    axs[0, 0].set_title('Voltage')
-    # Set current axes, tune as needed
-    axs[0, 1].set_ylim([0, np.amax(currentLog)])
-    axs[0, 1].set_title('Current')
-    axs[1, 0].set_ylim([0, np.amax(powerLog)])
-    axs[1, 0].set_title('Power Consumption')
-    axs[1, 1].set_ylim([0, np.amax(mAhLog)])
-    axs[1, 1].set_title('mAh Consumption')
-
-    axs[0, 0].set(xlabel='Time (s)', ylabel='Voltage')
-    axs[0, 1].set(xlabel='Time (s)', ylabel='Current (A)')
-    axs[1, 0].set(xlabel='Time (s)', ylabel='Watts')
-    axs[1, 1].set(xlabel='Time (s)', ylabel='mAh')
-
-    plt.subplots_adjust(left=0.1,
-                        bottom=0.1,
-                        right=0.9,
-                        top=0.9,
-                        wspace=0.4,
-                        hspace=0.4)
-
-    # Plot all logs
-    axs[0, 0].plot(timestamp, voltageLog)
-    axs[0, 1].plot(timestamp, currentLog)
-    axs[1, 0].plot(timestamp, powerLog)
-    axs[1, 1].plot(timestamp, mAhLog)
-    plt.show()
-
-
 def equation(x, a, b, c, d):
     """
     Format of general 3rd order polynomial used for curve fitting
@@ -72,27 +36,6 @@ def pull_logs(file):
         if thing.name == "Vehicle":
             return np.array(thing.data["batteryVoltage"]), (np.array(thing.data["batteryCurrent"])/1000), (np.array(thing.data["timestamp"]) / 1e6)
 
-
-def drain_data(vlog, final_mAhlog, mahlog):
-    for i in range(0, len(vlog)):
-        if(vlog[i] < 11.4):
-            print("11.4 iteration time: ", i)
-            break
-    for i in range(0, len(vlog)):
-        if(vlog[i] < 11.1):
-            print("11.1 iteration time: ", i)
-            break
-    print("Voltage full drain iteration time: ", len(vlog))
-
-    for i in range(0, len(final_mAhlog)):
-        if(final_mAhlog[i] < 0):
-            print("mAh drain to 0 iteration time: ", i)
-            break
-
-    print("Total recorded mAh drain: ", sum(mahlog[:22412]))
-
-
-def print_stats():
     """
     Print stats for analysis
     """
@@ -137,6 +80,31 @@ def find_full_drain(cap_log):
                 return i
 
 
+def mAh_data(mAh_log, timestamp, nominal_mAh):
+    """
+    mAh data for provided ULog files
+
+    :param mAh_log: list of mAh data
+    :param timestamp: time data of ULog file
+    :param nominal_mAh: nominal capacity value of battery
+
+    :return final_capacity_log: list of final capacity values decrementing
+    :return mAh_percent_log: list of final capacity values as percentages
+    """
+    finalCapacitymAh = nominal_mAh
+    capacityAddedmAh = 0
+    mAh_percent_log = []
+    mAh_percent_log = [0 for i in range(timestamp.size)]
+    final_capacity_log = []
+    final_capacity_log = [0 for i in range(timestamp.size)]
+    for x in range(0, len(final_capacity_log)-1):
+        capacityAddedmAh = capacityAddedmAh + mAh_log[x]
+        mAh_percent_log[x] = 100-(capacityAddedmAh/nominal_mAh*100)
+        finalCapacitymAh = finalCapacitymAh - mAh_log[x]
+        final_capacity_log[x] = finalCapacitymAh
+    return final_capacity_log, mAh_percent_log
+
+
 def drain_curve_percent(x):
     return 58.821010559671066*x**3 + -2134.5758966115527*x**2 + 25869.660996405204*x + -104622.36370746762
 
@@ -158,7 +126,7 @@ def voltage_to_percent_fit(v_log, cap_log):
         equation, v_log, cap_log)
     a, b, c, d = popt
     # return list of fit line data
-    print(c, b, a, d)
+    print("Voltage->Percent Polynomial: ", c, b, a, d)
 
 
 def percent_to_time_fit(percent_log, time_log):
@@ -174,135 +142,56 @@ def percent_to_time_fit(percent_log, time_log):
     time_log = time_log[len(time_log)-1]-time_log
     popt, _ = curve_fit(equation, percent_log, time_log)
     a, b, c, d = popt
-    print(c, b, a, d)
+    print("Percent->Time Polynomial: ", c, b, a, d)
 
 
-def plot_time_fit():
-    """
-    Plot estimated time remaining based on percentage of remaining capacity
-    """
-    plt.plot(mAh_percent_log[start_time:end_time], time_estimation_curve(
-        np.array(mAh_percent_log[start_time:end_time])))
-    plt.xlabel("Percent Capacity")
-    plt.ylabel("Estimated Remaining Seconds")
-    plt.title("Percent v Time")
-    plt.show()
-
-
-def plot_percentage_fit():
-    """
-    Plot estimated percentage from voltage
-    """
-    plt.plot(voltageLog[start_time:end_time],
-             drain_curve_percent(voltageLog[start_time:end_time]))
-    plt.xlabel("Voltage")
-    plt.ylabel("Estimated Percentage Remaining")
-    plt.title("Voltage v Percent")
-    plt.show()
-
-
-def simulate():
+def simulate(voltage):
     """
     Simulate final time estimation from ULog voltages
     Best estimations from idle batteries
+
+    :param voltage: voltage value
+    :return: estimated time remaining in seconds
     """
-    plt.plot(voltageLog[start_time:end_time], time_estimation_curve(
-        drain_curve_percent(voltageLog[start_time:end_time])))
-    plt.title("Time Estimation from Voltage")
-    plt.xlabel("Voltage")
-    plt.ylabel("Time Remaining (s)")
-    plt.show()
 
-    print(time_estimation_curve(
-        drain_curve_percent(11.46)))
+    return time_estimation_curve(drain_curve_percent(voltage))
 
 
-assert len(sys.argv) > 1, f"No input file specified"  # Verify file provided
+# Verify file provided
+assert len(sys.argv) > 2, f"Expected <1C ULog> <30A ULog>"
 
-print(f"input: {sys.argv[1]}")  # Print file name
+print(f"1C ULog: {sys.argv[1]} 30A ULog: {sys.argv[2]}")  # Print both files
 
+voltage_log_1C, current_log_1C, timestamp_1C = pull_logs(sys.argv[1])
+voltage_log_30A, current_log_30A, timestamp_30A = pull_logs(sys.argv[2])
 
-vlog1, clog1, tstmp1 = pull_logs(sys.argv[1])
+period_1C = timestamp_1C[1]-timestamp_1C[0]
+period_30A = timestamp_30A[1]-timestamp_30A[0]
 
-if (len(sys.argv) == 3):
-    vlog2, clog2, tstmp2 = pull_logs(sys.argv[2])
-    if(len(vlog1) > len(vlog2)):
-        vlog1 = vlog1[:len(vlog2-1)]
-        clog1 = clog1[:len(clog2-1)]
-        tstmp1 = tstmp1[:len(tstmp2-1)]
-    if(len(vlog2) > len(vlog1)):
-        vlog2 = vlog2[:len(vlog1-1)]
-        clog2 = clog2[:len(clog1-1)]
-        tstmp2 = tstmp2[:len(tstmp1-1)]
-    voltageLog = (vlog1 + vlog2)/2
-    currentLog = (clog1 + clog2)/2
-    timestamp = (tstmp1 + tstmp2)/2
-    timestamp = timestamp - timestamp[0]
-else:
-    voltageLog = vlog1
-    currentLog = clog1
-    timestamp = tstmp1 - tstmp1[0]
+mAh_log_1C = []  # Intialize current capacity array
+mAh_log_1C = (current_log_1C*1000)*(period_1C/3600)
 
-timestampGap = timestamp[1]-timestamp[0]
-frequency = 1/timestampGap
+mAh_log_30A = []
+mAh_log_30A = (current_log_30A*1000)*(period_30A/3600)
 
-mAhLog = []  # Intialize current capacity array
-mAhLog = [0 for i in range(currentLog.size)]
-for x in range(0, currentLog.size):
-    mAhLog[x] = (currentLog[x]*1000)*(timestampGap/3600)
+# Get mAh data
+final_capacity_1C, final_percent_1C = mAh_data(mAh_log_1C, timestamp_1C, 8500)
+final_capacity_30A, final_percent_30A = mAh_data(
+    mAh_log_30A, timestamp_30A, 8500)
 
-powerLog = voltageLog * currentLog  # Calculate power consumption
+# Find adequate start and end times for curve fitting
+start_time_1C = find_motor_start(voltage_log_1C)
+end_time_1C = find_full_drain(final_capacity_1C)
+load_drop_1C = max(voltage_log_1C)-voltage_log_1C[start_time_1C]
 
-# Calculate watt hours
-nominalWattHours = 56
-wHLog = []
-wHLog = [0 for i in range(timestamp.size)]
-for x in range(0, len(wHLog)):
-    wHLog[x] = voltageLog[x] * (mAhLog[x]/1000)
+start_time_30A = find_motor_start(voltage_log_30A)
+end_time_30A = find_full_drain(final_capacity_30A)
+load_drop_30A = max(voltage_log_30A)-voltage_log_30A[start_time_30A]
 
-# Find final wH
-finalCapacity = nominalWattHours
-finalCapacityLog = []
-finalCapacityLog = [0 for i in range(timestamp.size)]
-for x in range(0, len(wHLog)):
-    finalCapacity = finalCapacity - wHLog[x]
-    finalCapacityLog[x] = finalCapacity
+# Generate voltage v percent based on 1C draw
+voltage_to_percent_fit(
+    voltage_log_1C[start_time_1C:end_time_1C]+load_drop_1C, final_percent_1C[start_time_1C:end_time_1C])
 
-# Final capacity in mAh
-nominal_mAh = 8000
-finalCapacitymAh = 8000
-mAh_percent = 0
-capacityAddedmAh = 0
-mAh_percent_log = []
-mAh_percent_log = [0 for i in range(timestamp.size)]
-finalCapacitymAhLog = []
-finalCapacitymAhLog = [0 for i in range(timestamp.size)]
-for x in range(0, len(finalCapacitymAhLog)):
-    capacityAddedmAh = capacityAddedmAh + mAhLog[x]
-    mAh_percent_log[x] = 100-(capacityAddedmAh/nominal_mAh*100)
-    finalCapacitymAh = finalCapacitymAh - mAhLog[x]
-
-    finalCapacitymAhLog[x] = finalCapacitymAh
-
-minVoltage = np.amin(voltageLog)
-meanCurrent = np.average(currentLog)
-meanWh = sum(wHLog)/len(wHLog)
-wHPercent = int(finalCapacity/nominalWattHours * 100)
-
-start_time = find_motor_start(voltageLog)
-end_time = find_full_drain(finalCapacitymAhLog)
-load_drop = max(voltageLog)-voltageLog[start_time]
-
-# voltage_to_percent_fit(
-#     voltageLog[start_time:end_time]+load_drop, mAh_percent_log[start_time:end_time])
-
-# percent_to_time_fit(
-#     mAh_percent_log[start_time:end_time], timestamp[start_time:end_time])
-
-# drain_data(voltageLog[start_time:], finalCapacitymAhLog, mAhLog)
-# plotPowerData()  # Plot voltage, current, and power consumption
-# print_stats()
-
-# plot_time_fit()
-# plot_percentage_fit()
-simulate()
+# Generate percent v time based on 30A hover draw
+percent_to_time_fit(
+    final_percent_30A[start_time_30A:end_time_30A], timestamp_30A[start_time_30A:end_time_30A])

@@ -32,9 +32,9 @@ def pull_logs(file):
     """
     log = ulog.ULog(sys.argv[1])  # Parse ULog data
     data = log.data_list  # Compile list of data objects
-    for thing in data:
-        if thing.name == "Vehicle":
-            return np.array(thing.data["batteryVoltage"]), (np.array(thing.data["batteryCurrent"])/1000), (np.array(thing.data["timestamp"]) / 1e6)
+    for log_message in data:
+        if log_message.name == "Vehicle":
+            return np.array(log_message.data["batteryVoltage"]), (np.array(log_message.data["batteryCurrent"])/1000), (np.array(log_message.data["timestamp"]) / 1e6)
 
     """
     Print stats for analysis

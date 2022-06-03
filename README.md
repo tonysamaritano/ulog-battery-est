@@ -11,11 +11,13 @@ pip3 install --upgrade pip
 pip3 install -r requirements.txt
 ```
 
-## Test
+## To use batt-testing.py
 
-To run a simple test script, run this:
+Provide 2 ULog files, one representing a 1C drain test, another representing a 30A hover test
+
+Prints 2 sets of 4 coefficients representing the fit curves for battery estimation
 
 ```bash
-# python3 tools/pyulog-test.py <path to ulog>.ulg
-python3 tools/pyulog-test.py data/21_27_56.ulog
+# python3 batt-testing.py <1C ULog> <30A ULog>
+python3 tools/batt-testing.py data/reference_1c.ulog data/reference_30a.ulog
 ```

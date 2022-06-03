@@ -36,19 +36,6 @@ def pull_logs(file):
         if log_message.name == "Vehicle":
             return np.array(log_message.data["batteryVoltage"]), (np.array(log_message.data["batteryCurrent"])/1000), (np.array(log_message.data["timestamp"]) / 1e6)
 
-    # """
-    # Print stats for analysis
-    # """
-    # print("Final Voltage: %sV " % (voltageLog[voltageLog.size-1]))
-    # print("Maximum Voltage: %sV" % (voltageLog[0]))
-    # print("Minimum Voltage: %sV" % (minVoltage))
-    # print("Average Current: %sA" % meanCurrent)
-    # print("Average mAh: ", sum(mAhLog)/len(mAhLog))
-    # print("Final Capacity (mAh) %s" % (nominal_mAh-capacityAddedmAh))
-    # print("Average Wh: %sWh" % meanWh)
-    # print("Final Capacity: %sWh" % finalCapacity)
-    # print("Final Percentage: %d%%" % mAh_percent_log[len(mAh_percent_log)-1])
-
 
 def find_motor_start(v_log):
     """
@@ -61,7 +48,6 @@ def find_motor_start(v_log):
         if((v_log[i] - v_log[i+1]) > 0.05):
             return i + 5
     return 0
-    
 
 
 def find_full_drain(cap_log):
@@ -75,7 +61,6 @@ def find_full_drain(cap_log):
         if(cap_log[i] <= 0):
             return i
     return len(cap_log)-1
-
 
 
 def mAh_data(mAh_log, timestamp, nominal_mAh):
@@ -101,14 +86,6 @@ def mAh_data(mAh_log, timestamp, nominal_mAh):
         finalCapacitymAh = finalCapacitymAh - mAh_log[x]
         final_capacity_log[x] = finalCapacitymAh
     return final_capacity_log, mAh_percent_log
-
-
-def drain_curve_percent(x):
-    return 58.821010559671066*x**3 + -2134.5758966115527*x**2 + 25869.660996405204*x + -104622.36370746762
-
-
-def time_estimation_curve(x):
-    return 0.00031623534490089853*x**3 + -0.06535263801996286*x**2 + 15.21882160202914*x + -32.77764056651616
 
 
 def voltage_to_percent_fit(v_log, cap_log):
@@ -141,18 +118,6 @@ def percent_to_time_fit(percent_log, time_log):
     popt, _ = curve_fit(equation, percent_log, time_log)
     a, b, c, d = popt
     print("Percent->Time Polynomial: ", c, b, a, d)
-
-
-def simulate(voltage):
-    """
-    Simulate final time estimation from ULog voltages
-    Best estimations from idle batteries
-
-    :param voltage: voltage value
-    :return: estimated time remaining in seconds
-    """
-
-    return time_estimation_curve(drain_curve_percent(voltage))
 
 
 # Verify file provided

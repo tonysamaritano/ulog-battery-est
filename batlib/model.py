@@ -70,7 +70,7 @@ class Model:
         """
         Continuous update loop of battery information
 
-        :param time: time elapsed 
+        :param time: time elapsed (micro seconds)
 
         :return: estimated time remaining in seconds
         """
@@ -82,7 +82,7 @@ class Model:
         # *************************************************************************************************
         # *** will dt be continuously summed/overall time, or be passed as a duration since last update ***
         # *************************************************************************************************
-        self.capacity = self.capacity - (self.current*(dt/3600))
+        self.capacity = self.capacity - (self.current*(dt/(3600*1e6)))
 
         # Perform estimations on either real or experimental data, depedning on arm
         self.time_estimation = self.__equation__(
@@ -120,6 +120,8 @@ class Model:
     def __init_capacity__(self) -> bool:
         """
         Iterate and average rate of change of battery capacity to settle on an initial value
+        
+        :returns: a boolean value for if the capacity has been initialized
         """
         smallest_difference = 50
         difference_check = 0

@@ -1,5 +1,8 @@
 import pytest
-from batlib.test import func
+from batlib.model import Model
+from batlib.model import PolyStruct
 
 def test_test():
-    assert func() == "hello world"
+    struct_1 = PolyStruct()
+    model_1 = Model(struct_1)
+    assert model_1.update(120.0 * 1e6) == 16.0

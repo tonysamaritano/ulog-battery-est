@@ -7,6 +7,7 @@ import pyulog as ulog
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
+import argparse
 
 
 def equation(x, a, b, c, d):
@@ -30,7 +31,7 @@ def pull_logs(file):
     :param file: path to .ulog file
     :return voltage, current, time: all necessary power draw data in numpy array format
     """
-    log = ulog.ULog(sys.argv[1])  # Parse ULog data
+    log = ulog.ULog(file)  # Parse ULog data
     data = log.data_list  # Compile list of data objects
     for log_message in data:
         if log_message.name == "Vehicle":
@@ -120,13 +121,21 @@ def percent_to_time_fit(percent_log, time_log):
     print("Percent->Time Polynomial: ", c, b, a, d)
 
 
-# Verify file provided
-assert len(sys.argv) > 2, f"Expected <1C ULog> <30A ULog>"
+parser = argparse.ArgumentParser()
 
-print(f"1C ULog: {sys.argv[1]} 30A ULog: {sys.argv[2]}")  # Print both files
+parser.add_argument(
+    "-o", "--one-c", help="ulog file at 1C drain", nargs="?", default=".\\data\\reference_1c.ulog")
+parser.add_argument("-t", "--thirty-amp", help="ulog at 30A drain",
+                    nargs="?", default=".\\data\\reference_30A.ulog")
+parser.add_argument("-c", "--capacity", nargs="?", type=float,
+                    default="8500.0", help="set nominal charge capacity")
 
-voltage_log_1C, current_log_1C, timestamp_1C = pull_logs(sys.argv[1])
-voltage_log_30A, current_log_30A, timestamp_30A = pull_logs(sys.argv[2])
+args = parser.parse_args()
+
+print(f"1C ULog: {args.one_c} 30A ULog: {args.thirty_amp}")  # Print both files
+
+voltage_log_1C, current_log_1C, timestamp_1C = pull_logs(args.one_c)
+voltage_log_30A, current_log_30A, timestamp_30A = pull_logs(args.thirty_amp)
 
 period_1C = timestamp_1C[1]-timestamp_1C[0]
 period_30A = timestamp_30A[1]-timestamp_30A[0]
@@ -138,9 +147,10 @@ mAh_log_30A = []
 mAh_log_30A = (current_log_30A*1000)*(period_30A/3600)
 
 # Get mAh data
-final_capacity_1C, final_percent_1C = mAh_data(mAh_log_1C, timestamp_1C, 8500)
+final_capacity_1C, final_percent_1C = mAh_data(
+    mAh_log_1C, timestamp_1C, args.capacity)
 final_capacity_30A, final_percent_30A = mAh_data(
-    mAh_log_30A, timestamp_30A, 8500)
+    mAh_log_30A, timestamp_30A, args.capacity)
 
 # Find adequate start and end times for curve fitting
 start_time_1C = find_motor_start(voltage_log_1C)

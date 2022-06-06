@@ -12,7 +12,7 @@ class BatteryModel:
         """
         Scale capacity based on external temperature
 
-        To be implemented in the future
+        NOTE: To be implemented in the future
         """
         pass
 

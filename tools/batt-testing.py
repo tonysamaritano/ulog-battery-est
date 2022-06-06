@@ -1,6 +1,7 @@
 from asyncio import base_tasks
 from json import load
 from lib2to3.pgen2.pgen import DFAState
+import struct
 import sys
 from time import time
 import pyulog as ulog

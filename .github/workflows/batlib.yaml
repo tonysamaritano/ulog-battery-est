@@ -1,4 +1,4 @@
-name: PyLox Unit Tests
+name: Battery Library Unit Tests
 on: [push]
 jobs:
   test:

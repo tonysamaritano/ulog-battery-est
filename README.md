@@ -1,5 +1,6 @@
 # Battery Estimation Project
 
+![workflow](https://github.com/tonysamaritano/ulog-battery-est/actions/workflows/batlib.yaml/badge.svg)
 ## How to Start
 
 To initialize repo:

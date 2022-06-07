@@ -69,18 +69,21 @@ class Model:
         self.y0 = struct.y0
 
         # Battery values/usage
-        self.voltage = 0
-        self.current = 0
-        self.temperature = 0
-        self.capacity = 0
+        self.voltage = 0.0
+        self.current = 0.0
+        self.temperature = 0.0
+        self.capacity = 0.0
         self.capacity_array = np.array(np.ones(100))
-        self.rolling_average = 0
+        self.rolling_average = 0.0
 
         # Arm boolean, capacity init boolean
         self.armed = False
         self.capacity_initialized = False
 
         self.time_estimation = 0.0
+
+        # Constants
+        self._moving_avg_sample_size = 3
 
     def update(self, dt):
         """
@@ -142,18 +145,22 @@ class Model:
         :returns: a boolean value for if the capacity has been initialized
         """
         smallest_difference = 50
-        difference_check = 0
-        new_average = 0
+        difference_check = 0.0
 
-        new_average -= (self.rolling_average / 5)
+        previous = self.rolling_average
 
-        new_average += (self.__equation__(self.x3, self.x2,
-                        self.x1, self.x0, self.voltage) / 5)
+        if self.rolling_average == 0.0:
+            self.rolling_average = self.__equation__(self.x3, self.x2,
+                                                     self.x1, self.x0, self.voltage)
+        else:
+            self.rolling_average -= (self.rolling_average /
+                                     self._moving_avg_sample_size)
+            self.rolling_average += (self.__equation__(self.x3, self.x2,
+                                                       self.x1, self.x0, self.voltage) / self._moving_avg_sample_size)
 
-        difference_check = abs(self.rolling_average - new_average)
-        self.rolling_average = new_average
+        difference_check = abs(self.rolling_average - previous)
 
-        self.capacity = self.rolling_average*5
+        self.capacity = self.rolling_average
 
         return True if difference_check < smallest_difference else False
 

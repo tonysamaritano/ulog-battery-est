@@ -95,7 +95,7 @@ class Model:
         """
         # Initialize capacity
         if(not self.capacity_initialized):
-            self.__init_capacity__()
+            self.capacity_initialized = self.__init_capacity__()
 
         else:
             # Decrement current draw, assuming current is read as mA

@@ -31,8 +31,8 @@ def test_test0():
 def test_test1():
     struct_1 = PolyStruct()
     model_1 = Model(struct_1)
-    model_1.setArmed(False)
-    volt_data = voltage_noise_array(12.1, 0.5, 11.9, 100)
+    model_1.setArmed(True)
+    volt_data = voltage_noise_array(12.1, 0.5, 11.9, 200)
     for i in range(0, len(volt_data)-1):
         model_1.setInput(volt_data[i], 1e3, 25)
         model_1.update(0.05)
@@ -43,7 +43,7 @@ def test_test1():
 def test_test2():
     struct_1 = PolyStruct()
     model_1 = Model(struct_1)
-    volt_data = voltage_noise_array(12.5, 0.5, 12.2, 100)
+    volt_data = voltage_noise_array(12.5, 1, 12.2, 100)
     for i in range(0, len(volt_data)-1):
         model_1.setInput(volt_data[i], 1000, 25)
         model_1.update(0.25 * 1e6)
@@ -54,6 +54,7 @@ def test_test2():
 def test_test3():
     struct_1 = PolyStruct()
     model_1 = Model(struct_1)
+    model_1.setArmed(False)
     volt_data = voltage_noise_array(11.7, 0.5, 11.9, 100)
     for i in range(0, len(volt_data)-1):
         model_1.setInput(volt_data[i], 1000, 25)

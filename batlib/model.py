@@ -143,7 +143,7 @@ class Model:
 
         :returns: a boolean value for if the capacity has been initialized
         """
-        smallest_difference = 10
+        smallest_difference = 0
         difference_check = 0.0
 
         previous = self.rolling_average

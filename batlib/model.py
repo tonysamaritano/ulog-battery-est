@@ -38,15 +38,15 @@ class PolyStruct:
     capacity: float
         nominal capacity for battery, determined through testing
     """
-    x3: float = 58.821010559671066
-    x2: float = -2134.5758966115527
-    x1: float = 25869.660996405204
-    x0: float = -104622.36370746762
+    x3: float = 4438.520356552959
+    x2: float = -161808.41170109142
+    x1: float = 1970036.1888353096
+    x0: float = -8003392.537598927
 
-    y3: float = 0.00031623534490089853
-    y2: float = -0.06535263801996286
-    y1: float = 15.21882160202914
-    y0: float = -32.77764056651616
+    y3: float = 5.124055173497321e-10
+    y2: float = -9.008950105302864e-06
+    y1: float = 0.17888813746864485
+    y0: float = -32.85067290189358
 
     capacity: float = 8500
 
@@ -87,30 +87,19 @@ class Model:
 
         self.time_estimation = 0.0
 
-    def update(self, dt) -> float:
+    def update(self, dt):
         """
         Continuous update loop of battery information
 
         :param time: time elapsed (micro seconds)
-
-        :return: estimated time remaining in seconds
         """
         # Initialize capacity
         if(not self.capacity_initialized):
             self.__init_capacity__()
 
-        # Decrement current draw, assuming current is read as mA
-        # *************************************************************************************************
-        # *** will dt be continuously summed/overall time, or be passed as x3 duration since last update ***
-        # *************************************************************************************************
-        self.capacity = self.capacity - (self.current*(dt/(3600*1e6)))
-
-        # Perform estimations on either real or experimental data, depedning on arm
-        self.time_estimation = self.__equation__(
-            self.y3, self.y2, self.y1, self.y0, self.capacity) if self.armed else self.__equation__(
-                self.y3, self.y2, self.y1, self.y0, self.__equation__(self.x3, self.x2, self.x1, self.x0, self.voltage))
-
-        return self.time_estimation
+        else:
+            # Decrement current draw, assuming current is read as mA
+            self.capacity = self.capacity - (self.current*(dt/(3600*1e6)))
 
     def getTimeEstimate(self) -> float:
         """
@@ -118,7 +107,10 @@ class Model:
 
         :return: time estimation
         """
-        return self.time_estimation
+        # Perform estimations on either real or experimental data, depending on arm
+        return self.__equation__(
+            self.y3, self.y2, self.y1, self.y0, self.capacity) if self.armed else self.__equation__(
+                self.y3, self.y2, self.y1, self.y0, self.__equation__(self.x3, self.x2, self.x1, self.x0, self.voltage))
 
     def setInput(self, voltage: float, current: float, temperature: float) -> None:
         """
@@ -150,10 +142,15 @@ class Model:
         difference_check = 0
         new_average = 0
 
-        new_average = (self.rolling_average - self.rolling_average / 5) + (
-            self.rolling_average + self.__equation__(self.x3, self.x2, self.x1, self.x0, self.voltage) / 5)
+        new_average -= (self.rolling_average / 5)
 
-        difference_check = self.rolling_average - new_average
+        new_average += (self.__equation__(self.x3, self.x2,
+                        self.x1, self.x0, self.voltage) / 5)
+
+        difference_check = abs(self.rolling_average - new_average)
+        self.rolling_average = new_average
+
+        self.capacity = self.rolling_average
 
         return True if difference_check < smallest_difference else False
 

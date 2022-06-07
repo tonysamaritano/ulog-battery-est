@@ -16,7 +16,7 @@ class BatteryModel:
         """
         pass
 
-    def __drain_curve_percent(self, voltage):
+    def __drain_curve_capacity(self, voltage):
         """
         Third order equation used to estimate percent capacity from voltage
 
@@ -25,7 +25,7 @@ class BatteryModel:
         :param voltage: voltage to estimate
         :return: estimated percent remaining of battery
         """
-        return 58.821010559671066*voltage**3 + -2134.5758966115527*voltage**2 + 25869.660996405204*voltage + -104622.36370746762
+        return 4438.520356552959*voltage**3 + -161808.41170109142*voltage**2 + 1970036.1888353096*voltage + -8003392.537598927
 
     def __time_estimation_curve(self, percent_capacity):
         """
@@ -36,7 +36,7 @@ class BatteryModel:
         :param percent_capacity: battery capacity represented as a percentage
         :return: estimated time remaining for a flight
         """
-        return 0.00031623534490089853*percent_capacity**3 + -0.06535263801996286*percent_capacity**2 + 15.21882160202914*percent_capacity + -32.77764056651616
+        return 5.124055173497321e-10*percent_capacity**3 + -9.008950105302864e-06*percent_capacity**2 + 0.17888813746864485*percent_capacity + -32.85067290189358
 
     def simulate(self, voltage):
         """
@@ -47,4 +47,4 @@ class BatteryModel:
         :return: estimated time remaining in seconds
         """
 
-        return self.__time_estimation_curve(self.__drain_curve_percent(voltage))
+        return self.__time_estimation_curve(self.__drain_curve_capacity(voltage))

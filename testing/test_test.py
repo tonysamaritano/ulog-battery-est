@@ -1,4 +1,5 @@
 import pytest
+
 from batlib.model import Model
 from batlib.model import PolyStruct
 

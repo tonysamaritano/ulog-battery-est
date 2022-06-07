@@ -90,12 +90,12 @@ def mAh_data(mAh_log, timestamp, nominal_mAh):
     return final_capacity_log, mAh_percent_log
 
 
-def voltage_to_percent_fit(v_log, cap_log):
+def voltage_to_capacity_fit(v_log, cap_log):
     """
     Generate a prediction curve of percent capacity from voltage
 
     :param v_log: log of voltage data
-    :param cap_log: log of capacity data, should be in percent
+    :param cap_log: log of capacity data
     :return: list, calculated values
     """
     # Scipy curve fitting
@@ -103,23 +103,23 @@ def voltage_to_percent_fit(v_log, cap_log):
         equation, v_log, cap_log)
     a, b, c, d = popt
     # return list of fit line data
-    print("Voltage->Percent Polynomial: ", c, b, a, d)
+    print("Voltage->Capacity Polynomial: ", c, b, a, d)
 
 
-def percent_to_time_fit(percent_log, time_log):
+def capacity_to_time_fit(cap_log, time_log):
     """
     Take a percentage of capacity and estimate a time remaining
 
-    :param percent_log: log of percentage values retrieved from a percentage curve fit
+    :param cap_log: log of capacity values retrieved from a capacity curve fit
     :param time_log:    log of time for full battery drain, preferably at 30A
     """
 
     time_log = time_log-time_log[0]
     # Offset to 0, swap so higher capacity is at lower time
     time_log = time_log[len(time_log)-1]-time_log
-    popt, _ = curve_fit(equation, percent_log, time_log)
+    popt, _ = curve_fit(equation, cap_log, time_log)
     a, b, c, d = popt
-    print("Percent->Time Polynomial: ", c, b, a, d)
+    print("Capacity->Time Polynomial: ", c, b, a, d)
 
 
 parser = argparse.ArgumentParser()
@@ -163,9 +163,9 @@ end_time_30A = find_full_drain(final_capacity_30A)
 load_drop_30A = max(voltage_log_30A)-voltage_log_30A[start_time_30A]
 
 # Generate voltage v percent based on 1C draw
-voltage_to_percent_fit(
-    voltage_log_1C[start_time_1C:end_time_1C]+load_drop_1C, final_percent_1C[start_time_1C:end_time_1C])
+voltage_to_capacity_fit(
+    voltage_log_1C[start_time_1C:end_time_1C]+load_drop_1C, final_capacity_1C[start_time_1C:end_time_1C])
 
 # Generate percent v time based on 30A hover draw
-percent_to_time_fit(
-    final_percent_30A[start_time_30A:end_time_30A], timestamp_30A[start_time_30A:end_time_30A])
+capacity_to_time_fit(
+    final_capacity_30A[start_time_30A:end_time_30A], timestamp_30A[start_time_30A:end_time_30A])

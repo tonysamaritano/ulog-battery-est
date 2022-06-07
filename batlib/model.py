@@ -48,7 +48,7 @@ class PolyStruct:
     y1: float = 15.21882160202914
     y0: float = -32.77764056651616
 
-    capacity: float = 8500
+    nominal_capacity: float = 8500
 
 
 class Model:
@@ -91,7 +91,7 @@ class Model:
         """
         Continuous update loop of battery information
 
-        :param time: time elapsed (micro seconds)
+        :param dt: sample period interval (micro seconds)
 
         :return: estimated time remaining in seconds
         """
@@ -109,6 +109,7 @@ class Model:
         self.time_estimation = self.__equation__(
             self.y3, self.y2, self.y1, self.y0, self.capacity) if self.armed else self.__equation__(
                 self.y3, self.y2, self.y1, self.y0, self.__equation__(self.x3, self.x2, self.x1, self.x0, self.voltage))
+            
 
     def getTimeEstimate(self) -> float:
         """

@@ -48,6 +48,8 @@ class PolyStruct:
     y1: float = 0.17888813746864485
     y0: float = -32.85067290189358
 
+    capacity: float = 8500
+
 
 class Model:
     def __init__(self, struct: PolyStruct):

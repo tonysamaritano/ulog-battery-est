@@ -73,7 +73,6 @@ class Model:
         self.current = 0.0
         self.temperature = 0.0
         self.capacity = 0.0
-        self.capacity_array = np.array(np.ones(100))
         self.rolling_average = 0.0
 
         # Arm boolean, capacity init boolean
@@ -144,7 +143,7 @@ class Model:
 
         :returns: a boolean value for if the capacity has been initialized
         """
-        smallest_difference = 50
+        smallest_difference = 10
         difference_check = 0.0
 
         previous = self.rolling_average

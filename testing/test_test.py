@@ -10,6 +10,7 @@ def test_test0():
                  12.1, 12.3, 12.3, 12.3, 12.3, 12.3, 12.3]
     for i in range(0, len(volt_data)-1):
         model_1.setInput(volt_data[i], 1000, 25)
+        print(model_1.getCapacity())
         model_1.update(0.25 * 1e6)
     assert (model_1.getTimeEstimate() >
             1000 and model_1.getTimeEstimate() < 1100)
@@ -18,10 +19,12 @@ def test_test0():
 def test_test1():
     struct_1 = PolyStruct()
     model_1 = Model(struct_1)
-    volt_data = [11.1, 11.2, 11.5, 11.7, 11.8, 11.1, 11.9,
+    model_1.setArmed(True)
+    volt_data = [11.1, 11.2, 11.5, 11.7, 11.8, 11.9,
                  12.1, 12.1, 11.91, 11.92, 11.91, 11.90, 11.91]
     for i in range(0, len(volt_data)-1):
         model_1.setInput(volt_data[i], 1000, 25)
+        print(model_1.getCapacity())
         model_1.update(0.25 * 1e6)
     assert (model_1.getTimeEstimate() >
             810 and model_1.getTimeEstimate() < 830)

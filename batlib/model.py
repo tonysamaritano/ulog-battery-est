@@ -48,8 +48,6 @@ class PolyStruct:
     y1: float = 0.17888813746864485
     y0: float = -32.85067290189358
 
-    capacity: float = 8500
-
 
 class Model:
     def __init__(self, struct: PolyStruct):
@@ -69,9 +67,6 @@ class Model:
         self.y2 = struct.y2
         self.y1 = struct.y1
         self.y0 = struct.y0
-
-        # User specified nominal capacity of battery
-        self.nominal_capacity = struct.capacity
 
         # Battery values/usage
         self.voltage = 0
@@ -100,6 +95,14 @@ class Model:
         else:
             # Decrement current draw, assuming current is read as mA
             self.capacity = self.capacity - (self.current*(dt/(3600*1e6)))
+
+    def getCapacity(self) -> float:
+        """
+        Obtain current capacity value
+
+        :return: current capacity
+        """
+        return self.capacity
 
     def getTimeEstimate(self) -> float:
         """
@@ -150,7 +153,7 @@ class Model:
         difference_check = abs(self.rolling_average - new_average)
         self.rolling_average = new_average
 
-        self.capacity = self.rolling_average
+        self.capacity = self.rolling_average*5
 
         return True if difference_check < smallest_difference else False
 

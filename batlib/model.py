@@ -71,7 +71,7 @@ class Model:
         self.y0 = struct.y0
 
         # User specified nominal capacity of battery
-        self.nominal_capacity = struct.nominal_capacity
+        self.nominal_capacity = struct.capacity
 
         # Battery values/usage
         self.voltage = 0
@@ -110,6 +110,8 @@ class Model:
             self.y3, self.y2, self.y1, self.y0, self.capacity) if self.armed else self.__equation__(
                 self.y3, self.y2, self.y1, self.y0, self.__equation__(self.x3, self.x2, self.x1, self.x0, self.voltage))
 
+        return self.time_estimation
+
     def getTimeEstimate(self) -> float:
         """
         Return the current time estimation to the user
@@ -141,7 +143,7 @@ class Model:
     def __init_capacity__(self) -> bool:
         """
         Iterate and average rate of change of battery capacity to settle on an initial value
-        
+
         :returns: a boolean value for if the capacity has been initialized
         """
         smallest_difference = 50

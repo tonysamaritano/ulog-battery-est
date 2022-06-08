@@ -76,7 +76,7 @@ class Model:
         """
         Continuous update loop of battery information
 
-        :param time: time elapsed (micro seconds)
+        :param time: time elapsed in seconds
         """
         # Initialize capacity
         if(not self.__capacity_initialized):

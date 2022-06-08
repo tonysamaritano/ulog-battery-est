@@ -18,6 +18,7 @@ def voltage_noise_array(final_value, noise_range, noise_voltage, length):
     :param noise_range:     added noise range to a noise voltage
     :param noise_voltage:   voltage where noise is generated around
     :param length:          length of the data array 
+    :return:                generated voltage array
     """
     volt_data = [0 for i in range(0, length-1)]
     volt_data = [(random.uniform(-noise_range, noise_range)+noise_voltage)

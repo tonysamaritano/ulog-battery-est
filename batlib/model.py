@@ -103,13 +103,10 @@ class Model:
         """
         # Perform estimations on either real or experimental data, depending on arm
         if self.__armed:
-            return self.__equation(
-                self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, self.__capacity)
+            return self.__capacity_to_time(self.__capacity)
         else:
-            capacity = self.__equation(self._coefficients.x3, self._coefficients.x2,
-                                       self._coefficients.x1, self._coefficients.x0, self.__voltage)
-            return self.__equation(
-                self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, capacity)
+            capacity = self.__voltage_to_capacity(self.__voltage)
+            return self.__capacity_to_time(capacity)
 
     def setInput(self, voltage: float, current: float, temperature: float) -> None:
         """
@@ -143,13 +140,12 @@ class Model:
         previous = self.__rolling_average
 
         if self.__rolling_average == 0.0:
-            self.__rolling_average = self.__equation(self._coefficients.x3, self._coefficients.x2,
-                                                     self._coefficients.x1, self._coefficients.x0, self.__voltage)
+            self.__rolling_average = self.__voltage_to_capacity(self.__voltage)
         else:
             self.__rolling_average -= (self.__rolling_average /
                                        self.__moving_avg_sample_size)
-            self.__rolling_average += (self.__equation(self._coefficients.x3, self._coefficients.x2,
-                                                       self._coefficients.x1, self._coefficients.x0, self.__voltage) / self.__moving_avg_sample_size)
+            self.__rolling_average += (self.__voltage_to_capacity(
+                self.__voltage) / self.__moving_avg_sample_size)
 
         difference_check = abs(self.__rolling_average - previous)
 
@@ -159,13 +155,28 @@ class Model:
 
     def __equation(self, x3: float, x2: float, x1: float, x0: float, input: float) -> float:
         """
-        3rd order polynomial estimation of capacity fromm input value (voltage or capacity)
+        3rd order polynomial estimation
 
-        :param voltage: input voltage
-        :param x3: 3rd degree coefficient
-        :param x2: 2nd degree coefficient
-        :param x1: 1st degree coefficient
-        :param x0: constant coefficient
         :return: resulting capacity estimate
         """
         return (x3*input**3) + (x2*input**2) + (x1*input) + x0
+
+    def __capacity_to_time(self, cap: float):
+        """
+        Uses given capacity and converts to time estimation
+
+        :param cap: current capacity
+
+        :return: time estimation
+        """
+        return self.__equation(self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, cap)
+
+    def __voltage_to_capacity(self, voltage: float):
+        """
+        Uses a given voltage to estimate current capacity
+
+        :param voltage: battery voltage
+
+        :return: capacity estimation
+        """
+        return self.__equation(self._coefficients.x3, self._coefficients.x2, self._coefficients.x1, self._coefficients.x0, voltage)

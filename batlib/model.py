@@ -59,18 +59,18 @@ class Model:
         self._coefficients = struct
 
         # Battery values/usage
-        self.voltage = 0.0
-        self.current = 0.0
-        self.temperature = 0.0
-        self.capacity = 0.0
-        self.rolling_average = 0.0
+        self.__voltage = 0.0
+        self.__current = 0.0
+        self.__temperature = 0.0
+        self.__capacity = 0.0
+        self.__rolling_average = 0.0
 
         # Arm boolean, capacity init boolean
-        self.armed = False
-        self.capacity_initialized = False
+        self.__armed = False
+        self.__capacity_initialized = False
 
         # Constants
-        self._moving_avg_sample_size = 3
+        self.__moving_avg_sample_size = 3
 
     def update(self, dt):
         """
@@ -79,12 +79,13 @@ class Model:
         :param time: time elapsed (micro seconds)
         """
         # Initialize capacity
-        if not self.capacity_initialized:
-            self.capacity_initialized = self.__init_capacity()
+        if(not self.__capacity_initialized):
+            self.__capacity_initialized = self.__init_capacity()
 
         else:
             # Decrement current draw, assuming current is read as mA
-            self.capacity = self.capacity - (self.current*(dt/(3600*1e6)))
+            self.__capacity = self.__capacity - \
+                (self.__current*(dt/(3600*1e6)))
 
     def getCapacity(self) -> float:
         """
@@ -92,7 +93,7 @@ class Model:
 
         :return: current capacity
         """
-        return self.capacity
+        return self.__capacity
 
     def getTimeEstimate(self) -> float:
         """
@@ -101,12 +102,12 @@ class Model:
         :return: time estimation
         """
         # Perform estimations on either real or experimental data, depending on arm
-        if self._armed:
+        if self.__armed:
             return self.__equation(
-                self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, self.capacity)
+                self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, self.__capacity)
         else:
             capacity = self.__equation(self._coefficients.x3, self._coefficients.x2,
-                                       self._coefficients.x1, self._coefficients.x0, self.voltage)
+                                       self._coefficients.x1, self._coefficients.x0, self.__voltage)
             return self.__equation(
                 self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, capacity)
 
@@ -118,17 +119,17 @@ class Model:
         :param current: current draw
         :param temperature: battery temperature
         """
-        self.voltage = voltage
-        self.current = current
-        self.temperature = temperature
+        self.__voltage = voltage
+        self.__current = current
+        self.__temperature = temperature
 
-    def setArmed(self, set: bool) -> None:
+    def setArmed(self, arm: bool) -> None:
         """
         Indicate arming of drone
 
         :param set: true/false for enabling/disabling arm
         """
-        self.armed = set
+        self.__armed = arm
 
     def __init_capacity(self) -> bool:
         """
@@ -139,21 +140,20 @@ class Model:
         smallest_difference = 0.2
         difference_check = 0.0
 
-        previous = self.rolling_average
+        previous = self.__rolling_average
 
-        if self.rolling_average == 0.0:
-            self.rolling_average = self.__equation(self.x3, self.x2,
-                                                   self.x1, self.x0, self.voltage)
+        if self.__rolling_average == 0.0:
+            self.__rolling_average = self.__equation(self._coefficients.x3, self._coefficients.x2,
+                                                     self._coefficients.x1, self._coefficients.x0, self.__voltage)
         else:
-            self.rolling_average -= (self.rolling_average /
-                                     self._moving_avg_sample_size)
-            self.rolling_average += (self.__equation(self.x3, self.x2,
-                                                     self.x1, self.x0, self.voltage) / self._moving_avg_sample_size)
+            self.__rolling_average -= (self.__rolling_average /
+                                       self.__moving_avg_sample_size)
+            self.__rolling_average += (self.__equation(self._coefficients.x3, self._coefficients.x2,
+                                                       self._coefficients.x1, self._coefficients.x0, self.__voltage) / self.__moving_avg_sample_size)
 
-        difference_check = abs(self.rolling_average - previous)
+        difference_check = abs(self.__rolling_average - previous)
 
-        self.capacity = self.rolling_average
-        print(f"Cap: {self.voltage}  Diff: {difference_check}")
+        self.__capacity = self.__rolling_average
 
         return True if difference_check < smallest_difference else False
 

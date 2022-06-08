@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 
 from batlib.model import Model
-from batlib.model import PolyStruct
+from batlib.model import BatteryCoefficients
 
 
 def voltage_noise_array(final_value, noise_range, noise_voltage, length):
@@ -34,7 +34,7 @@ def test_model_0():
     voltage value of 12.3, noise range of .5, noise voltage value 
     of 11.9 and length of 100
     """
-    struct_1 = PolyStruct()
+    struct_1 = BatteryCoefficients()
     model_1 = Model(struct_1)
     volt_data = voltage_noise_array(12.3, 0.5, 11.9, 100)
     for i in range(0, len(volt_data)-1):
@@ -52,7 +52,7 @@ def test_model_armed_1():
     voltage value of 12.1, noise range of .5, noise voltage value 
     of 11.9 and lenght of 200
     """
-    struct_1 = PolyStruct()
+    struct_1 = BatteryCoefficients()
     model_1 = Model(struct_1)
     model_1.setArmed(True)
     volt_data = voltage_noise_array(12.1, 0.5, 11.9, 200)
@@ -70,7 +70,7 @@ def test_model_2_full_battery():
     voltage value of 12.5, noise range of 1, noise voltage value 
     of 12.2 and lenght of 100
     """
-    struct_1 = PolyStruct()
+    struct_1 = BatteryCoefficients()
     model_1 = Model(struct_1)
     volt_data = voltage_noise_array(12.5, 1, 12.2, 100)
     for i in range(0, len(volt_data)-1):
@@ -87,7 +87,7 @@ def test_model_3_false_arm():
     voltage value of 11.7, noise range of .5, noise voltage value 
     of 11.9 and lenght of 100
     """
-    struct_1 = PolyStruct()
+    struct_1 = BatteryCoefficients()
     model_1 = Model(struct_1)
     model_1.setArmed(False)
     volt_data = voltage_noise_array(11.7, 0.5, 11.9, 100)

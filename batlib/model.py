@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class PolyStruct:
+class BatteryCoefficients:
     """Structure for the coefficients of x3 given
     third order polynomial function.
 
@@ -50,23 +50,13 @@ class PolyStruct:
 
 
 class Model:
-    def __init__(self, struct: PolyStruct):
+    def __init__(self, struct: BatteryCoefficients):
         """
         Initialization of x3 model object
 
         :param struct: struct object of polynomial, capacity data
         """
-        # Voltage -> Capacity coefficients
-        self.x3 = struct.x3
-        self.x2 = struct.x2
-        self.x1 = struct.x1
-        self.x0 = struct.x0
-
-        # Capacity -> Time coefficients
-        self.y3 = struct.y3
-        self.y2 = struct.y2
-        self.y1 = struct.y1
-        self.y0 = struct.y0
+        self._coefficients = struct
 
         # Battery values/usage
         self.voltage = 0.0
@@ -79,8 +69,6 @@ class Model:
         self.armed = False
         self.capacity_initialized = False
 
-        self.time_estimation = 0.0
-
         # Constants
         self._moving_avg_sample_size = 3
 
@@ -91,8 +79,8 @@ class Model:
         :param time: time elapsed (micro seconds)
         """
         # Initialize capacity
-        if(not self.capacity_initialized):
-            self.capacity_initialized = self.__init_capacity__()
+        if not self.capacity_initialized:
+            self.capacity_initialized = self.__init_capacity()
 
         else:
             # Decrement current draw, assuming current is read as mA
@@ -113,9 +101,14 @@ class Model:
         :return: time estimation
         """
         # Perform estimations on either real or experimental data, depending on arm
-        return self.__equation__(
-            self.y3, self.y2, self.y1, self.y0, self.capacity) if self.armed else self.__equation__(
-                self.y3, self.y2, self.y1, self.y0, self.__equation__(self.x3, self.x2, self.x1, self.x0, self.voltage))
+        if self._armed:
+            return self.__equation(
+                self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, self.capacity)
+        else:
+            capacity = self.__equation(self._coefficients.x3, self._coefficients.x2,
+                                       self._coefficients.x1, self._coefficients.x0, self.voltage)
+            return self.__equation(
+                self._coefficients.y3, self._coefficients.y2, self._coefficients.y1, self._coefficients.y0, capacity)
 
     def setInput(self, voltage: float, current: float, temperature: float) -> None:
         """
@@ -137,33 +130,34 @@ class Model:
         """
         self.armed = set
 
-    def __init_capacity__(self) -> bool:
+    def __init_capacity(self) -> bool:
         """
         Iterate and average rate of change of battery capacity to settle on an initial value
 
         :returns: a boolean value for if the capacity has been initialized
         """
-        smallest_difference = 0
+        smallest_difference = 0.2
         difference_check = 0.0
 
         previous = self.rolling_average
 
         if self.rolling_average == 0.0:
-            self.rolling_average = self.__equation__(self.x3, self.x2,
-                                                     self.x1, self.x0, self.voltage)
+            self.rolling_average = self.__equation(self.x3, self.x2,
+                                                   self.x1, self.x0, self.voltage)
         else:
             self.rolling_average -= (self.rolling_average /
                                      self._moving_avg_sample_size)
-            self.rolling_average += (self.__equation__(self.x3, self.x2,
-                                                       self.x1, self.x0, self.voltage) / self._moving_avg_sample_size)
+            self.rolling_average += (self.__equation(self.x3, self.x2,
+                                                     self.x1, self.x0, self.voltage) / self._moving_avg_sample_size)
 
         difference_check = abs(self.rolling_average - previous)
 
         self.capacity = self.rolling_average
+        print(f"Cap: {self.voltage}  Diff: {difference_check}")
 
         return True if difference_check < smallest_difference else False
 
-    def __equation__(self, x3: float, x2: float, x1: float, x0: float, input: float) -> float:
+    def __equation(self, x3: float, x2: float, x1: float, x0: float, input: float) -> float:
         """
         3rd order polynomial estimation of capacity fromm input value (voltage or capacity)
 

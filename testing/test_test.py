@@ -13,7 +13,7 @@ def voltage_noise_array(final_value, noise_range, noise_voltage, length):
     at a voltage value.
     After half of the length of the array is reached, the array will start
     to settle around a final voltage value.
-    
+
     :param final_value:     final voltage value to settle to
     :param noise_range:     added noise range to a noise voltage
     :param noise_voltage:   voltage where noise is generated around
@@ -45,7 +45,7 @@ def test_model_0():
             1000 and model_1.getTimeEstimate() < 1100)
 
 
-def test_model_1():
+def test_model_armed_1():
     """
     This is a test for the functions in the model.py class.
     The voltage data is being initialized with a final settling 
@@ -63,7 +63,7 @@ def test_model_1():
             910 and model_1.getTimeEstimate() < 940)
 
 
-def test_model_2():
+def test_model_2_full_battery():
     """
     This is a test for the functions in the model.py class.
     The voltage data is being initialized with a final settling 
@@ -80,7 +80,7 @@ def test_model_2():
             1120 and model_1.getTimeEstimate() < 1160)
 
 
-def test_model_3():
+def test_model_3_false_arm():
     """
     This is a test for the functions in the model.py class.
     The voltage data is being initialized with a final settling 

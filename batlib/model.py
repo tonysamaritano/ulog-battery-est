@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class PolyStruct:
+class BatteryCoefficientStruct:
     """Structure for the coefficients of x3 given
     third order polynomial function.
 
@@ -50,39 +50,39 @@ class PolyStruct:
 
 
 class Model:
-    def __init__(self, struct: PolyStruct):
+    def __init__(self, struct: BatteryCoefficientStruct):
         """
         Initialization of x3 model object
 
         :param struct: struct object of polynomial, capacity data
         """
         # Voltage -> Capacity coefficients
-        self.x3 = struct.x3
-        self.x2 = struct.x2
-        self.x1 = struct.x1
-        self.x0 = struct.x0
+        self.__x3 = struct.x3
+        self.__x2 = struct.x2
+        self.__x1 = struct.x1
+        self.__x0 = struct.x0
 
         # Capacity -> Time coefficients
-        self.y3 = struct.y3
-        self.y2 = struct.y2
-        self.y1 = struct.y1
-        self.y0 = struct.y0
+        self.__y3 = struct.y3
+        self.__y2 = struct.y2
+        self.__y1 = struct.y1
+        self.__y0 = struct.y0
 
         # Battery values/usage
-        self.voltage = 0.0
-        self.current = 0.0
-        self.temperature = 0.0
-        self.capacity = 0.0
-        self.rolling_average = 0.0
+        self.__voltage = 0.0
+        self.__current = 0.0
+        self.__temperature = 0.0
+        self.__capacity = 0.0
+        self.__rolling_average = 0.0
 
         # Arm boolean, capacity init boolean
-        self.armed = False
-        self.capacity_initialized = False
+        self.__armed = False
+        self.__capacity_initialized = False
 
-        self.time_estimation = 0.0
+        self.__time_estimation = 0.0
 
         # Constants
-        self._moving_avg_sample_size = 3
+        self.__moving_avg_sample_size = 3
 
     def update(self, dt):
         """
@@ -91,12 +91,12 @@ class Model:
         :param time: time elapsed (micro seconds)
         """
         # Initialize capacity
-        if(not self.capacity_initialized):
-            self.capacity_initialized = self.__init_capacity__()
+        if(not self.__capacity_initialized):
+            self.__capacity_initialized = self.__init_capacity__()
 
         else:
             # Decrement current draw, assuming current is read as mA
-            self.capacity = self.capacity - (self.current*(dt/(3600*1e6)))
+            self.__capacity = self.__capacity - (self.__current*(dt/(3600*1e6)))
 
     def getCapacity(self) -> float:
         """
@@ -104,7 +104,7 @@ class Model:
 
         :return: current capacity
         """
-        return self.capacity
+        return self.__capacity
 
     def getTimeEstimate(self) -> float:
         """
@@ -114,8 +114,8 @@ class Model:
         """
         # Perform estimations on either real or experimental data, depending on arm
         return self.__equation__(
-            self.y3, self.y2, self.y1, self.y0, self.capacity) if self.armed else self.__equation__(
-                self.y3, self.y2, self.y1, self.y0, self.__equation__(self.x3, self.x2, self.x1, self.x0, self.voltage))
+            self.__y3, self.__y2, self.__y1, self.__y0, self.__capacity) if self.__armed else self.__equation__(
+                self.__y3, self.__y2, self.__y1, self.__y0, self.__equation__(self.x3, self.__x2, self.__x1, self.__x0, self.__voltage))
 
     def setInput(self, voltage: float, current: float, temperature: float) -> None:
         """
@@ -125,9 +125,9 @@ class Model:
         :param current: current draw
         :param temperature: battery temperature
         """
-        self.voltage = voltage
-        self.current = current
-        self.temperature = temperature
+        self.__voltage = voltage
+        self.__current = current
+        self.__temperature = temperature
 
     def setArmed(self, set: bool) -> None:
         """
@@ -135,7 +135,7 @@ class Model:
 
         :param set: true/false for enabling/disabling arm
         """
-        self.armed = set
+        self.__armed = set
 
     def __init_capacity__(self) -> bool:
         """
@@ -146,20 +146,20 @@ class Model:
         smallest_difference = 0
         difference_check = 0.0
 
-        previous = self.rolling_average
+        previous = self.__rolling_average
 
-        if self.rolling_average == 0.0:
-            self.rolling_average = self.__equation__(self.x3, self.x2,
-                                                     self.x1, self.x0, self.voltage)
+        if self.__rolling_average == 0.0:
+            self.__rolling_average = self.__equation__(self.__x3, self.__x2,
+                                                     self.__x1, self.__x0, self.__voltage)
         else:
-            self.rolling_average -= (self.rolling_average /
-                                     self._moving_avg_sample_size)
-            self.rolling_average += (self.__equation__(self.x3, self.x2,
-                                                       self.x1, self.x0, self.voltage) / self._moving_avg_sample_size)
+            self.__rolling_average -= (self.__rolling_average /
+                                     self.__moving_avg_sample_size)
+            self.__rolling_average += (self.__equation__(self.__x3, self.__x2,
+                                                       self.__x1, self.__x0, self.__voltage) / self.__moving_avg_sample_size)
 
-        difference_check = abs(self.rolling_average - previous)
+        difference_check = abs(self.__rolling_average - previous)
 
-        self.capacity = self.rolling_average
+        self.__capacity = self.__rolling_average
 
         return True if difference_check < smallest_difference else False
 

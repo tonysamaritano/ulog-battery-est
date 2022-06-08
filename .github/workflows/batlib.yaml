@@ -1,0 +1,15 @@
+name: Battery Library Unit Tests
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install Requirements
+        run: pip3 install -r requirements.txt
+      - name: Run Test
+        run: coverage run --source=batlib -m pytest
+      - name: Coverage Report
+        run: coverage report -m --fail-under 100

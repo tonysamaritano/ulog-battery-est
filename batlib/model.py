@@ -85,7 +85,7 @@ class Model:
         else:
             # Decrement current draw, assuming current is read as mA
             self.__capacity = self.__capacity - \
-                (self.__current*(dt/(3600*1e6)))
+                (self.__current*(dt/(3600)))
 
     def getCapacity(self) -> float:
         """

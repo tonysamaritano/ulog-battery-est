@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 
 #include <verge/mission-command/test.h>
 
@@ -14,6 +15,10 @@ int main(int argc, char *argv[])
     {
         std::cout << "Hello World" << std::endl;
     }
+
+    /* Unit Tests Here */
+
+    assert(false); // use assertion
 
     return 0;
 }

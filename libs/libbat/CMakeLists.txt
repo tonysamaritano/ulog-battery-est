@@ -12,7 +12,7 @@ add_executable(bat-sim
 include_directories(include)
 
 add_library(bat
-    src/test.cpp
+    src/BatteryModel.cpp
 )
 
 target_link_libraries(bat-sim PUBLIC bat)

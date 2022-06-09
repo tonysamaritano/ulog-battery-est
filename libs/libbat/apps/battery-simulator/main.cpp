@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
 
-#include <verge/mission-command/test.h>
+#include <verge/mission-command/battery-model.h>
 
 using namespace Verge::MissionCommand;
 

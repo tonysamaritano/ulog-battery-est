@@ -21,5 +21,5 @@ add_library(bat
     src/BatteryModel.cpp
 )
 
-target_link_libraries(bat-sim PUBLIC bat GTest::gtest GTest::gtest_main)
+target_link_libraries(bat-sim PUBLIC bat GTest::GTest GTest::Main)
 target_include_directories(bat-sim PUBLIC include)

@@ -9,21 +9,17 @@
 
 using namespace Verge::MissionCommand;
 
-float * voltageNoiseArray(float finalValue, float noiseRange, float noiseVoltage, int length)
+void voltageNoiseArray(float * volt_data, float finalValue, float noiseRange, float noiseVoltage, int length)
 {
-    float volt_data[length];
-
-    for (int i = 0; i < (int)(length / 2) - 1; i++)
+    for (int i = 0; i <= (int)(length / 2) - 1; i++)
     {
         volt_data[i] = noiseVoltage + (-noiseRange + (float)(rand()) / (float)(RAND_MAX / (noiseRange - (-noiseRange))));
     }
 
-    for (int i = (int)(length / 2); i < length - 1; i++)
+    for (int i = (int)(length / 2); i <= length - 1; i++)
     {
         volt_data[i] = finalValue;
     }
-
-    return volt_data;
 }
 
 TEST(NotArmedAccuracyTest, FullVoltage)
@@ -31,10 +27,12 @@ TEST(NotArmedAccuracyTest, FullVoltage)
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(12.5, 0.3, 12.2, 100);
+    float voltage[100];
+    voltageNoiseArray(voltage, 12.5, 0.3, 12.2, 100);
+
     int arrSize = sizeof(voltage) / sizeof(float);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -49,10 +47,12 @@ TEST(NotArmedAccuracyTest, MidVoltage)
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(12.1, 0.3, 11.9, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 12.1, 0.3, 11.9, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -67,10 +67,12 @@ TEST(NotArmedAccuracyTest, LowVoltage)
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(11.7, 0.3, 11.9, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 11.7, 0.3, 11.9, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -85,11 +87,13 @@ TEST(ArmedAccuracyTest, FullVoltage)
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(12.5, 0.3, 12.2, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 12.5, 0.3, 12.2, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
     model.setArmed(true);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -104,11 +108,13 @@ TEST(ArmedAccuracyTest, MidVoltage)
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(12.1, 0.3, 11.9, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 12.1, 0.3, 11.9, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
     model.setArmed(true);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -123,11 +129,13 @@ TEST(ArmedAccuracyTest, LowVoltage)
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(11.7, 0.3, 11.9, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 11.7, 0.3, 11.9, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
     model.setArmed(true);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -137,16 +145,18 @@ TEST(ArmedAccuracyTest, LowVoltage)
     EXPECT_LT(model.getTimeEstimate(), 690);
 }
 
-TEST(ArmSwapAccuracyTest, FullVoltage_0)
+TEST(ArmSwapAccuracyTest, FullVoltage)
 {
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(12.5, 0.3, 12.2, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 12.5, 0.3, 12.2, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
     model.setArmed(true);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -158,16 +168,18 @@ TEST(ArmSwapAccuracyTest, FullVoltage_0)
     EXPECT_LT(model.getTimeEstimate(), 1160);
 }
 
-TEST(ArmSwapAccuracyTest, FullVoltage_1)
+TEST(ArmSwapAccuracyTest, MidVoltage)
 {
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(12.1, 0.3, 11.9, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 12.1, 0.3, 11.9, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
     model.setArmed(true);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);
@@ -179,16 +191,18 @@ TEST(ArmSwapAccuracyTest, FullVoltage_1)
     EXPECT_LT(model.getTimeEstimate(), 940);
 }
 
-TEST(ArmSwapAccuracyTest, FullVoltage_2)
+TEST(ArmSwapAccuracyTest, LowVoltage)
 {
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
 
-    float *voltage = voltageNoiseArray(11.7, 0.3, 11.9, 100);
+    float voltage[100];
+
+    voltageNoiseArray(voltage, 11.7, 0.3, 11.9, 100);
     int arrSize = sizeof(voltage) / sizeof(float);
     model.setArmed(true);
 
-    for (int i = 0; i < arrSize; i++)
+    for (int i = 0; i <= arrSize-1; i++)
     {
         model.setInput(voltage[i], 1e3, 25);
         model.update(1 / 20);

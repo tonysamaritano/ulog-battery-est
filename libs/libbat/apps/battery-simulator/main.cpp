@@ -137,7 +137,7 @@ TEST(ArmedAccuracyTest, LowVoltage)
     EXPECT_LT(model.getTimeEstimate(), 690);
 }
 
-TEST(ArmSwapAccuracyTest, FullVoltage)
+TEST(ArmSwapAccuracyTest, FullVoltage_0)
 {
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
@@ -158,7 +158,7 @@ TEST(ArmSwapAccuracyTest, FullVoltage)
     EXPECT_LT(model.getTimeEstimate(), 1160);
 }
 
-TEST(ArmSwapAccuracyTest, FullVoltage)
+TEST(ArmSwapAccuracyTest, FullVoltage_1)
 {
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);
@@ -179,7 +179,7 @@ TEST(ArmSwapAccuracyTest, FullVoltage)
     EXPECT_LT(model.getTimeEstimate(), 940);
 }
 
-TEST(ArmSwapAccuracyTest, FullVoltage)
+TEST(ArmSwapAccuracyTest, FullVoltage_2)
 {
     BatteryCoefficients coefficients;
     BatteryModel model = BatteryModel(coefficients);

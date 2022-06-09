@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
 
-#include <verge/mission-command/test.h>
+#include <verge/mission-command/BatteryCoefficients.h>
 
 using namespace Verge::MissionCommand;
 
@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     if (argc == 2)
     {
-        Test::print_name(argv[1]);
+        BatteryCoefficients::print_name(argv[1]);
     }
     else
     {

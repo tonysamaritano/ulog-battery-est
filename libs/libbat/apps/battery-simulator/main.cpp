@@ -80,7 +80,6 @@ TEST(NotArmedAccuracyTest, LowVoltage)
 
     EXPECT_GT(model.getTimeEstimate(), 670);
     EXPECT_LT(model.getTimeEstimate(), 690);
-    EXPECT_TRUE(false);
 }
 
 TEST(ArmedAccuracyTest, FullVoltage)

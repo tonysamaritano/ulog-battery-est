@@ -7,10 +7,6 @@ namespace Verge
     {
         struct BatteryCoefficients
         {
-            /**
-             * @brief 
-             * 
-             */
             float x3 = 4438.520356552959;
             float x2 = -161808.41170109142;
             float x1 = 1970036.1888353096;

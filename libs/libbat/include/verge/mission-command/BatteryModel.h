@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <verge/mission-command/BatteryCoefficients.h>
+#include <math.h>
 
 namespace Verge
 {
@@ -33,6 +34,7 @@ namespace Verge
 
         public:
             BatteryModel(BatteryCoefficients coefficients);
+            void update(float dt);
             float getCapacity();
             float getTimeEstimate();
             void setInput(float volatge, float current, float temperature);

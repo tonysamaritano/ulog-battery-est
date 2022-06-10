@@ -74,7 +74,7 @@ namespace Verge
              */
             bool initCapacity();
 
-            /*
+            /**
              * Return output of general 3rd order polynomial
              *
              * @param x3    3rd degree coefficient
@@ -82,7 +82,8 @@ namespace Verge
              * @param x1    1st degree coefficient
              * @param x0    constant coefficient
              *
-             * @return output of 3rd order polynomial */
+             * @return output of 3rd order polynomial 
+             */
             float equation(float x3, float x2, float x1, float x0, float input);
 
             /**

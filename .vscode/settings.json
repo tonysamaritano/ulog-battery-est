@@ -56,7 +56,8 @@
         "ctime": "cpp",
         "map": "cpp",
         "set": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "cinttypes": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled",
 }

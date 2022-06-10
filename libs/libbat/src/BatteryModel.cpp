@@ -1,6 +1,5 @@
-#include <iostream>
-
 #include <verge/mission-command/BatteryModel.h>
+#include <cmath>
 
 using namespace Verge::MissionCommand;
 
@@ -21,7 +20,7 @@ BatteryModel::BatteryModel(BatteryCoefficients coefficients) :
  */
 void BatteryModel::update(float dt)
 {
-    // Initialize capacity
+    /* Initialize capacity */
     if (!m_capacityInitialized)
     {
         m_capacityInitialized = initCapacity();
@@ -29,12 +28,12 @@ void BatteryModel::update(float dt)
 
     else
     {
-        // Decrement current draw, assuming current is read at mA
-        m_capacity = m_capacity - (m_current * (dt / (3600)));
+        /* Decrement current draw, assuming current is read at mA */
+        m_capacity = m_capacity - (m_current * (dt / (3600.0f)));
     }
 }
 
-/**
+/*
  * Return output of general 3rd order polynomial
  *
  * @param x3    3rd degree coefficient
@@ -42,8 +41,7 @@ void BatteryModel::update(float dt)
  * @param x1    1st degree coefficient
  * @param x0    constant coefficient
  *
- * @return output of 3rd order polynomial
- */
+ * @return output of 3rd order polynomial */
 float BatteryModel::equation(float x3, float x2, float x1, float x0, float input)
 {
     return x3 * pow(input, 3) + x2 * pow(input, 2) + x1 * input + x0;
@@ -82,12 +80,12 @@ float BatteryModel::capacityToTime(float capacity)
  */
 bool BatteryModel::initCapacity()
 {
-    float smallestDifference = 0.2f;
+    const float smallestDifference = 0.2f;
     float differenceCheck = 0.0f;
 
     float previous = m_rollingAverage;
 
-    if(m_rollingAverage == 0.0)
+    if (m_rollingAverage == 0.0f)
     {
         m_rollingAverage = voltageToCapacity(m_voltage);
     }
@@ -121,7 +119,7 @@ float BatteryModel::getCapacity()
  */
 float BatteryModel::getTimeEstimate()
 {
-    if(m_armed)
+    if (m_armed)
     {
         return capacityToTime(m_capacity);
     }

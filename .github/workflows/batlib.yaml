@@ -13,3 +13,16 @@ jobs:
         run: coverage run --source=batlib -m pytest
       - name: Coverage Report
         run: coverage report -m --fail-under 100
+  test-cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install Requirements
+        run: sudo apt-get install cmake libgtest-dev
+      - name: Build
+        run: mkdir build && cd build && cmake .. && make
+      - name: Run Unit Tests
+        run: cd build && make test
+    

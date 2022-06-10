@@ -1,5 +1,6 @@
-#include <verge/mission-command/BatteryModel.h>
 #include <cmath>
+
+#include <verge/mission-command/BatteryModel.h>
 
 using namespace Verge::MissionCommand;
 

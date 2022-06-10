@@ -49,23 +49,18 @@ namespace Verge
             void setArmed(bool arm);
 
         private:
-            // Curve polynomial coefficients
             BatteryCoefficients m_coefficients;
 
-            // Battery data
             float m_voltage;
             float m_current;
             float m_capacity;
             float m_temperature;
             float m_rollingAverage;
 
-            // Boolean flags
             bool m_armed;
             bool m_capacityInitialized;
 
             static constexpr float m_movingAvgSampleSize = 3;
-
-            // Functions
 
             /**
              * Initializes battery capacity based on measured voltages

@@ -13,11 +13,6 @@ BatteryModel::BatteryModel(BatteryCoefficients coefficients) :
     m_armed(false),
     m_capacityInitialized(false) {}
 
-/**
- * Continuous update loop of battery information
- *
- * @param dt interval of time elasped in seconds
- */
 void BatteryModel::update(float dt)
 {
     /* Initialize capacity */
@@ -33,26 +28,11 @@ void BatteryModel::update(float dt)
     }
 }
 
-/*
- * Return output of general 3rd order polynomial
- *
- * @param x3    3rd degree coefficient
- * @param x2    2nd degree coefficient
- * @param x1    1st degree coefficient
- * @param x0    constant coefficient
- *
- * @return output of 3rd order polynomial */
 float BatteryModel::equation(float x3, float x2, float x1, float x0, float input)
 {
     return x3 * pow(input, 3) + x2 * pow(input, 2) + x1 * input + x0;
 }
 
-/**
- * Uses a given voltage to estimation current capacity
- *
- * @param voltage battery voltage
- * @return float capacity estimation
- */
 float BatteryModel::voltageToCapacity(float voltage)
 {
     return equation(m_coefficients.x3, m_coefficients.x2,
@@ -60,12 +40,6 @@ float BatteryModel::voltageToCapacity(float voltage)
                     voltage);
 }
 
-/**
- * @brief Uses givne capacity and converts to time estimation
- *
- * @param capacity current capacity
- * @return float capacity estimation
- */
 float BatteryModel::capacityToTime(float capacity)
 {
     return equation(m_coefficients.y3, m_coefficients.y2,
@@ -73,11 +47,6 @@ float BatteryModel::capacityToTime(float capacity)
                     capacity);
 }
 
-/**
- * Initializes battery capacity based on measured voltages
- *
- * @return status of capacity stabilization
- */
 bool BatteryModel::initCapacity()
 {
     const float smallestDifference = 0.2f;
@@ -102,21 +71,11 @@ bool BatteryModel::initCapacity()
     return (differenceCheck < smallestDifference);
 }
 
-/**
- * Returns current battery capacity
- *
- * @return battery capacity in mAh
- */
-float BatteryModel::getCapacity()
+float BatteryModel::getCapacity() const
 {
     return m_capacity;
 }
 
-/**
- * Calculate and return estimated time of flight in seconds
- *
- * @return time in seconds
- */
 float BatteryModel::getTimeEstimate()
 {
     if (m_armed)
@@ -130,13 +89,6 @@ float BatteryModel::getTimeEstimate()
     }
 }
 
-/**
- * Set instantaneous battery information
- * 
- * @param voltage battery voltage
- * @param current current draw
- * @param temperature battery temperature
- */
 void BatteryModel::setInput(float voltage, float current, float temperature)
 {
     m_voltage = voltage;
@@ -144,11 +96,6 @@ void BatteryModel::setInput(float voltage, float current, float temperature)
     m_temperature = temperature;
 }
 
-/**
- * Indicate arming of drone
- * 
- * @param arm true/false for enabling/disabling arm
- */
 void BatteryModel::setArmed(bool arm)
 {
     m_armed = arm;

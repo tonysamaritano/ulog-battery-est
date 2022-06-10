@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <verge/mission-command/BatteryCoefficients.h>
 
 using namespace Verge::MissionCommand;

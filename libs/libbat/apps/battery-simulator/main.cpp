@@ -11,7 +11,7 @@ using namespace Verge::MissionCommand;
 
 void voltageNoiseArray(std::vector<float> &volt_data, float finalValue, float noiseRange, float noiseVoltage, int length)
 {
-    for (int i = 0; i <= length / 2 - 1; i++)
+    for (int i = 0; i < length / 2; i++)
     {
         volt_data[i] = noiseVoltage + (-noiseRange + (float)(rand()) / (float)(RAND_MAX / (noiseRange - (-noiseRange))));
     }
@@ -84,8 +84,7 @@ TEST(ArmedAccuracyTest, FullVoltage)
     BatteryModel model = BatteryModel(coefficients);
 
     std::vector<float> voltage(100);
-
-    voltageNoiseArray(voltage, 12.5f, 0.3f, 12.2f, 100);
+    voltageNoiseArray(voltage, 12.5f, 0.2f, 12.2f, 100);
     model.setArmed(true);
 
     for (auto volts : voltage)

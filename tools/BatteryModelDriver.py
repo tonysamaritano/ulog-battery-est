@@ -15,3 +15,8 @@ except ValueError:
 
 battery_model_1 = BatteryModel()
 print(battery_model_1.simulate(voltage))
+
+v = np.linspace(4.2*3, 3.75*3, 100)
+
+plt.plot(v, np.array([battery_model_1.simulate(volts) for volts in v]))
+plt.show()
